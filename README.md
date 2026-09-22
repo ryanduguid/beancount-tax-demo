@@ -69,3 +69,7 @@ python pipeline.py
 
 - `cap_gains_check.py` does **classification + treatment, not an exact tax figure** (which needs total income, filing status, NIIT, state). `beancount_client.py` handles the common `{cost} @ price` lot syntax, not the full beancount grammar. Production leans on the full OA skill + an agent step; the named-CPA sign-off makes the verdict relianceable.
 - Rules (the >1yr long-term cutoff, 0/15/20%, 3.8% NIIT) are 2025 US figures; live, every value comes from `get_skill`. The verifier (Amir Pelinkovic) is the real OpenAccountants US lead.
+
+Holding periods use calendar dates. A 28 February 2024 acquisition sold on 28 February 2025 is short-term despite spanning 366 days; selling on 1 March 2025 is long-term. The demo handles ordinary purchases, not inherited property or other special holding-period rules. Source: [IRS Publication 550, Holding Period](https://www.irs.gov/publications/p550#en_US_2025_publink100010540).
+
+Run the offline checks with `python -m unittest discover -s tests -v`.

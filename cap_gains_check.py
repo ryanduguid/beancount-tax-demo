@@ -11,21 +11,32 @@ skill + an agent step; the named-CPA sign-off makes the verdict relianceable.
 
 from __future__ import annotations
 
+from datetime import date
+
 
 def check(gain: dict, oa_skill: dict) -> dict:
     rules = oa_skill.get("rules", {})
     base = {"oa_skill": oa_skill.get("slug"), "oa_skill_name": oa_skill.get("name"),
             "tier": oa_skill.get("tier"), "verifier": oa_skill.get("verifier")}
-    days = gain["holding_days"]
     amt = gain["gain"]
-    lt_min = rules.get("long_term_min_days", 366)
 
     if amt < 0:
         return {**base, "status": "info",
                 "headline": f"Capital loss (${amt:,.2f})",
                 "detail": "Offsets capital gains; up to $3,000/yr deductible against ordinary income, rest carries forward."}
 
-    if days >= lt_min:
+    try:
+        acquired = date.fromisoformat(gain["acquire_date"])
+        sold = date.fromisoformat(gain["sell_date"])
+        if sold < acquired:
+            raise ValueError("Disposal precedes acquisition")
+    except (KeyError, TypeError, ValueError):
+        return {**base, "status": "info", "headline": "Holding period needs valid dates",
+                "detail": "Provide acquisition and disposal dates; a day count alone cannot establish more than one calendar year."}
+    days = (sold - acquired).days
+    # Publication 550: exclude acquisition day, include disposal day.
+    long_term = (sold.year, sold.month, sold.day) > (acquired.year + 1, acquired.month, acquired.day)
+    if long_term:
         lt = rules.get("long_term", {})
         niit = rules.get("niit", {})
         return {**base, "status": "ok",

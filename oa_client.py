@@ -76,7 +76,6 @@ _MOCK_SKILL = {
         "tax_year": 2025,
         "rules": {
             # Illustrative — production reads these from the skill.
-            "long_term_min_days": 366,  # held MORE than one year
             "short_term": {"treatment": "ordinary income rates (10–37%)"},
             "long_term": {"rates": [0.0, 0.15, 0.20], "headline": "0% / 15% / 20% by income"},
             "niit": {"rate": 0.038, "note": "+3.8% Net Investment Income Tax above $200k (single) / $250k (MFJ)"},
