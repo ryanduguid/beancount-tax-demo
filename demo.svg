@@ -1,23 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="976" height="520" viewBox="0 0 976 520" font-family="SFMono-Regular,Consolas,Menlo,monospace" font-size="14">
-<rect width="976" height="520" rx="10" fill="#0d1117"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="903" height="828" viewBox="0 0 903 828" font-family="SFMono-Regular,Consolas,Menlo,monospace" font-size="14">
+<rect width="903" height="828" rx="10" fill="#0d1117"/>
 <circle cx="20" cy="18" r="6" fill="#ff5f56"/>
 <circle cx="40" cy="18" r="6" fill="#ffbd2e"/>
 <circle cx="60" cy="18" r="6" fill="#27c93f"/>
-<text x="24" y="40" xml:space="preserve" fill="#58a6ff">beancount → OpenAccountants · capital-gains demo  [MOCK (set OA_MCP_TOKEN to use the live verified rules)]</text>
-<text x="24" y="84" xml:space="preserve" fill="#e6edf3">📈  AAPL · 10 units · acquired 2024-08-01 → sold 2025-03-01 · gain $500.00</text>
-<text x="24" y="106" xml:space="preserve" fill="#39c5cf">    OpenAccountants → US capital gains (short vs long term, 2025)  (tier 1, signed off by Amir Pelinkovic (US lead))</text>
-<text x="24" y="128" xml:space="preserve" fill="#d29922">    ⚠️  Short-term gain — ordinary income rates (10–37%)</text>
-<text x="24" y="150" xml:space="preserve" fill="#c9d1d9">       Held only 212 days (≤1yr) — taxed as ordinary income, NOT the long-term 0/15/20% rate.</text>
-<text x="24" y="194" xml:space="preserve" fill="#e6edf3">📈  BTC · 0.5 units · acquired 2022-01-10 → sold 2025-02-01 · gain $27,500.00</text>
-<text x="24" y="216" xml:space="preserve" fill="#39c5cf">    OpenAccountants → US capital gains (short vs long term, 2025)  (tier 1, signed off by Amir Pelinkovic (US lead))</text>
-<text x="24" y="238" xml:space="preserve" fill="#3fb950">    ✅ Long-term gain — preferential rate (0% / 15% / 20% by income)</text>
-<text x="24" y="260" xml:space="preserve" fill="#c9d1d9">       Held 1118 days (&gt;1yr). +3.8% Net Investment Income Tax above $200k (single) / $250k (MFJ)</text>
-<text x="24" y="304" xml:space="preserve" fill="#e6edf3">📈  VTI · 20 units · acquired 2021-05-01 → sold 2025-05-01 · gain $1,000.00</text>
-<text x="24" y="326" xml:space="preserve" fill="#39c5cf">    OpenAccountants → US capital gains (short vs long term, 2025)  (tier 1, signed off by Amir Pelinkovic (US lead))</text>
-<text x="24" y="348" xml:space="preserve" fill="#3fb950">    ✅ Long-term gain — preferential rate (0% / 15% / 20% by income)</text>
-<text x="24" y="370" xml:space="preserve" fill="#c9d1d9">       Held 1461 days (&gt;1yr). +3.8% Net Investment Income Tax above $200k (single) / $250k (MFJ)</text>
-<text x="24" y="414" xml:space="preserve" fill="#e6edf3">📈  TSLA · 5 units · acquired 2024-11-15 → sold 2025-04-10 · gain $-250.00</text>
-<text x="24" y="436" xml:space="preserve" fill="#39c5cf">    OpenAccountants → US capital gains (short vs long term, 2025)  (tier 1, signed off by Amir Pelinkovic (US lead))</text>
-<text x="24" y="458" xml:space="preserve" fill="#39c5cf">    ℹ️  Capital loss ($-250.00)</text>
-<text x="24" y="480" xml:space="preserve" fill="#c9d1d9">       Offsets capital gains; up to $3,000/yr deductible against ordinary income, rest carries forward.</text>
+<text x="24" y="40" xml:space="preserve" fill="#58a6ff">beancount → OpenAccountants · capital-gains demo [BUNDLED ILLUSTRATIVE RULES]</text>
+<text x="24" y="84" xml:space="preserve" fill="#e6edf3">📈  Assets:Brokerage · BTC · 0.5 units</text>
+<text x="24" y="106" xml:space="preserve" fill="#c9d1d9">    Acquired 2022-01-10 → sold 2025-02-01</text>
+<text x="24" y="128" xml:space="preserve" fill="#c9d1d9">    Basis USD 20,000.00 · proceeds USD 47,500.00 · difference USD 27,500.00</text>
+<text x="24" y="150" xml:space="preserve" fill="#39c5cf">    OpenAccountants → Illustrative capital-gain classification (unverified sample rules)</text>
+<text x="24" y="172" xml:space="preserve" fill="#39c5cf">    ℹ️ Long-term: USD 27,500.00 gain</text>
+<text x="24" y="194" xml:space="preserve" fill="#c9d1d9">       Uses the ordinary-purchase calendar holding period. No tax rate or tax liability is</text>
+<text x="24" y="216" xml:space="preserve" fill="#c9d1d9">       calculated.</text>
+<text x="24" y="260" xml:space="preserve" fill="#e6edf3">📈  Assets:Brokerage · AAPL · 10 units</text>
+<text x="24" y="282" xml:space="preserve" fill="#c9d1d9">    Acquired 2024-08-01 → sold 2025-03-01</text>
+<text x="24" y="304" xml:space="preserve" fill="#c9d1d9">    Basis USD 1,500.00 · proceeds USD 2,000.00 · difference USD 500.00</text>
+<text x="24" y="326" xml:space="preserve" fill="#39c5cf">    OpenAccountants → Illustrative capital-gain classification (unverified sample rules)</text>
+<text x="24" y="348" xml:space="preserve" fill="#39c5cf">    ℹ️ Short-term: USD 500.00 gain</text>
+<text x="24" y="370" xml:space="preserve" fill="#c9d1d9">       Uses the ordinary-purchase calendar holding period. No tax rate or tax liability is</text>
+<text x="24" y="392" xml:space="preserve" fill="#c9d1d9">       calculated.</text>
+<text x="24" y="436" xml:space="preserve" fill="#e6edf3">📈  Assets:Brokerage · TSLA · 5 units</text>
+<text x="24" y="458" xml:space="preserve" fill="#c9d1d9">    Acquired 2024-11-15 → sold 2025-04-10</text>
+<text x="24" y="480" xml:space="preserve" fill="#c9d1d9">    Basis USD 1,750.00 · proceeds USD 1,500.00 · difference USD -250.00</text>
+<text x="24" y="502" xml:space="preserve" fill="#39c5cf">    OpenAccountants → Illustrative capital-gain classification (unverified sample rules)</text>
+<text x="24" y="524" xml:space="preserve" fill="#39c5cf">    ℹ️ Short-term: USD 250.00 loss</text>
+<text x="24" y="546" xml:space="preserve" fill="#c9d1d9">       Uses the ordinary-purchase calendar holding period. No tax rate or tax liability is</text>
+<text x="24" y="568" xml:space="preserve" fill="#c9d1d9">       calculated. This individual lot loss is not a deduction by itself. After annual capital-</text>
+<text x="24" y="590" xml:space="preserve" fill="#c9d1d9">       gain netting, an individual's net loss deduction is generally limited to USD 3,000 (USD</text>
+<text x="24" y="612" xml:space="preserve" fill="#c9d1d9">       1,500 if married filing separately); unused losses may carry forward.</text>
+<text x="24" y="656" xml:space="preserve" fill="#e6edf3">📈  Assets:Brokerage · VTI · 20 units</text>
+<text x="24" y="678" xml:space="preserve" fill="#c9d1d9">    Acquired 2021-05-01 → sold 2025-05-01</text>
+<text x="24" y="700" xml:space="preserve" fill="#c9d1d9">    Basis USD 4,000.00 · proceeds USD 5,000.00 · difference USD 1,000.00</text>
+<text x="24" y="722" xml:space="preserve" fill="#39c5cf">    OpenAccountants → Illustrative capital-gain classification (unverified sample rules)</text>
+<text x="24" y="744" xml:space="preserve" fill="#39c5cf">    ℹ️ Long-term: USD 1,000.00 gain</text>
+<text x="24" y="766" xml:space="preserve" fill="#c9d1d9">       Uses the ordinary-purchase calendar holding period. No tax rate or tax liability is</text>
+<text x="24" y="788" xml:space="preserve" fill="#c9d1d9">       calculated.</text>
 </svg>

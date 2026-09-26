@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 from xml.sax.saxutils import escape
 
 BG, DEFAULT, MUTED, WHITE = "#0d1117", "#c9d1d9", "#8b949e", "#e6edf3"
 CYAN, GREEN, AMBER, ACCENT = "#39c5cf", "#3fb950", "#d29922", "#58a6ff"
-CHAR_W, LINE_H, PAD_X, PAD_Y = 8.0, 22, 24, 34
+CHAR_W, LINE_H, PAD_X, PAD_Y = 9.0, 22, 24, 34
 
 
 def color_for(line: str) -> str:
@@ -31,7 +32,11 @@ def color_for(line: str) -> str:
 
 
 def main() -> int:
-    out = subprocess.run([sys.executable, "pipeline.py"], capture_output=True, text=True).stdout.rstrip("\n")
+    here = Path(__file__).resolve().parent
+    out = subprocess.run(
+        [sys.executable, "-X", "utf8", "pipeline.py"], cwd=here,
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    ).stdout.rstrip("\n")
     lines = out.split("\n")
     width = int(max((len(ln) for ln in lines), default=60) * CHAR_W + PAD_X * 2)
     height = len(lines) * LINE_H + PAD_Y + 24
@@ -49,7 +54,7 @@ def main() -> int:
             parts.append(f'<text x="{PAD_X}" y="{y}" xml:space="preserve" fill="{color_for(ln)}">{escape(ln)}</text>')
         y += LINE_H
     parts.append("</svg>")
-    with open("demo.svg", "w") as fh:
+    with open(here / "demo.svg", "w", encoding="utf-8") as fh:
         fh.write("\n".join(parts))
     print(f"wrote demo.svg ({width}x{height}, {len(lines)} lines)")
     return 0

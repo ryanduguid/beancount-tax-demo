@@ -1,71 +1,138 @@
-# beancount → OpenAccountants: capital-gains demo
+# Beancount → OpenAccountants: illustrative capital gains
 
-**The pitch in one line:** beancount tracks your lots in plain text. OpenAccountants tells you the **tax treatment of each realized gain** — short- vs long-term, across jurisdictions — signed off by a named licensed accountant. No API keys, no signup.
+Read a strict USD investment-ledger subset, match lots by account and commodity
+using FIFO, and calculate exact proceeds less basis. The example classifies
+ordinary purchased investment property using a calendar holding period.
+Bundled rules have no professional sign-off, and no tax rate or liability is
+calculated.
 
-```
-portfolio.beancount
-  └─ FIFO lot matching → realized gains { symbol, acquire/sell date, gain }
-        └─ OpenAccountants MCP  →  load the verified capital-gains skill
-              └─ Verdict:  ✅ long-term — preferential rate (0/15/20%)
-                           ⚠️ short-term — ordinary income rates (up to 37%)   ← the catch
-                           ℹ️  capital loss — offsets gains
-                 · holding period computed from the ledger
-                 · the named CPA who signed off the rates
-```
-
-![beancount → OpenAccountants demo](demo.svg)
-
-> Regenerate the visual: `python make_svg.py` (static SVG, no deps) · animated GIF: `brew install vhs && vhs demo.tape`
-
-## Why this one
-
-beancount is plain-text, double-entry accounting beloved by developers, and it's excellent at **lot tracking** — which makes it the perfect substrate for capital-gains tax. This demo reads a `.beancount` ledger, pairs buys and sells FIFO, and asks OpenAccountants the question the ledger can't answer itself: *how is each gain actually taxed?*
-
-- **beancount = the lots and the cost basis.**
-- **OpenAccountants = the tax treatment.** Short vs long term, the preferential-rate cutoff, NIIT — with verified rules a real accountant signed off on.
-
-No keys, no signup — `python pipeline.py` and it runs. (Set `OA_MCP_TOKEN` to use the live verified rules instead of the bundled ones.)
-
-## What it shows
-
-A sample ledger run through the OpenAccountants MCP:
-
-| Holding | Verdict |
-|---|---|
-| AAPL — held ~7 months | ⚠️ **Short-term — ordinary income rates (up to 37%)** |
-| BTC — held >3 years | ✅ Long-term — 0/15/20% |
-| VTI — held ~4 years | ✅ Long-term — 0/15/20% |
-| TSLA — sold at a loss | ℹ️ Capital loss — offsets gains |
-
-**The money shot:** the AAPL gain. Held a year or less, so it's **short-term — taxed at ordinary income rates (up to 37%), not the 15% long-term rate** people assume. The ledger knows the dates; OpenAccountants knows what they mean for your tax.
+![Illustrative FIFO gains](demo.svg)
 
 ## Run it
 
-```bash
-git clone https://github.com/openaccountants/beancount-tax-demo
-cd beancount-tax-demo
-python pipeline.py                      # bundled sample ledger (mock mode, no keys)
-python pipeline.py samples/portfolio.beancount
-```
-
-### Go live
+Python 3.10 or later and the standard library are sufficient.
 
 ```bash
-export OA_MCP_TOKEN=...     # OpenAccountants account token (uses the live verified rules)
 python pipeline.py
+python pipeline.py samples/portfolio.beancount
+python -m unittest discover -s tests -v
+python make_svg.py
 ```
+
+The default command and SVG generator use bundled examples. Invalid ledger
+input returns exit code 2 before any gains are reported. An unsupported rule
+contract or unresolved holding period also returns 2 while retaining the known
+gain calculation. A valid ledger with purchases but no disposals says that no
+gain classification was performed.
+
+## Accepted ledger subset
+
+This parser does not implement Beancount's full grammar or replace its ledger
+validator. It accepts only the following investment trades:
+
+- Dated `open` directives for `Assets:` and `Income:` accounts, before first use.
+  Account components start with an ASCII capital letter and then contain ASCII
+  letters, digits or hyphens.
+- Chronological `YYYY-MM-DD * "Narration"` transaction headers, with an optional
+  quoted payee before the narration. Blank lines and whole-line `;` comments
+  are allowed. Token separators and indentation use ASCII spaces or tabs.
+  Years must be between 1700 and 2099, matching Beancount's date tokens.
+  Lines end with LF or CRLF. Blank lines and unindented comments end a
+  transaction; only indented comments may occur between its postings.
+  A bare carriage return inside a comment does not end that comment, matching
+  Beancount's lexer. Text following it remains comment text until LF.
+  A single-letter commodity requires a space or tab before its cost annotation.
+- One investment posting and one explicit USD cash posting per trade. Purchases
+  require a positive quantity and `{unit_cost USD}`. Sales require a negative
+  quantity, `{}` or `{unit_cost USD}`, one `@ unit_price USD`, and one explicit
+  USD `Income:` posting.
+- Commodity names start with an ASCII capital letter and end with an ASCII
+  capital letter or digit. Interior characters may also include periods and
+  underscores. The reserved words `TRUE`, `FALSE` and `NULL` are excluded.
+- USD cost and cash currency only. The cash and income postings must agree
+  exactly with the calculated cost or sale proceeds and FIFO basis. Fees must
+  not be hidden in a different cash amount.
+
+For example:
+
+```beancount
+2023-01-01 open Assets:Brokerage
+2023-01-01 open Assets:Cash
+2023-01-01 open Income:Gains
+2023-03-01 * "Buy"
+  Assets:Brokerage 2 ABC {10 USD}
+  Assets:Cash -20 USD
+2024-03-01 * "Sell"
+  Assets:Brokerage -2 ABC {10 USD} @ 15 USD
+  Assets:Cash 30 USD
+  Income:Gains -10 USD
+```
+
+The result is a US$10 short-term gain. The interval spans 366 days but does not
+exceed the calendar-year boundary.
+
+An empty cost annotation on a sale means FIFO within that account and commodity.
+An explicit unit cost must match every FIFO lot consumed by the sale; a cost
+that would skip an earlier lot is rejected. Dated or labelled lot selectors,
+total-cost syntax, total-price `@@` syntax, transfers, short positions, fees,
+inferred quantities and other directives are unsupported and rejected. Unknown
+lines are never silently ignored. The whole sale quantity must be available
+before any lots are consumed.
+
+## Decimal calculations and scope
+
+Quantities, unit costs and unit prices are finite ASCII decimal literals with absolute
+values at most `1e12` and up to 18 decimal places. USD cash and income postings
+allow absolute values up to `1e24` and 36 decimal places. Unit costs and prices
+must be non-negative. Scientific notation is outside the accepted grammar.
+Fractional values need a leading digit, such as `0.5`; `.5` is rejected.
+Ungrouped digits may have a leading sign and a decimal point with an empty
+fractional part, such as `+10.`. Comma grouping is outside this subset.
+
+Calculations use 80 digits of decimal precision and retain exact lot values;
+there is no quantity tolerance or rounding before gains are calculated. Display
+alone rounds to cents using half-up rounding. Values smaller than a cent remain
+in the returned calculation even if their displayed value rounds to zero.
+
+The example assumes a US individual and ordinary purchased investment property.
+It excludes special basis and holding-period adjustments, gifts, inheritance,
+wash sales, corporate actions, foreign-currency tax rules and annual netting.
+The supplied ledger must already identify transactions within this scope.
+
+The calendar rule follows [IRS Publication 550](https://www.irs.gov/publications/p550#en_US_2025_publink100010540).
+Acquisitions on 29 February remain incomplete because their boundary has not
+been independently verified for this demo. Gains, losses and zero outcomes all
+receive a holding term when supported; a long-term label does not promise a
+particular tax rate.
+
+An individual lot loss is not itself an annual deduction. After capital-gain
+netting, an individual's net capital-loss deduction is generally limited to
+US$3,000, or US$1,500 if married filing separately; unused losses may carry
+forward. See the [capital-loss discussion in Publication 550](https://www.irs.gov/publications/p550).
+The demo does not compute that deduction.
+
+## Optional live adapter
+
+`python pipeline.py --live` explicitly selects the experimental JSON-RPC
+adapter and requires `OA_MCP_TOKEN` configured outside the repository. Live
+authentication and response handling remain unverified. Failed calls never
+fall back to samples. Only the `ordinary-us-capital-gains-v1` rule contract in
+`cap_gains_check.py` is supported; provider metadata is reported information,
+not independent attestation.
+
+Provider responses reject duplicate JSON properties and non-standard numeric constants.
+Control characters in supplied text appear as visible escapes. Redirected
+output tolerates encodings that cannot represent the display symbols.
 
 ## Files
 
 | File | Role |
-|------|------|
-| `pipeline.py` | Orchestrator + CLI: ledger → OA → verdict report |
-| `beancount_client.py` | Parses the ledger, pairs buys/sells FIFO → realized gains |
-| `oa_client.py` | OpenAccountants MCP JSON-RPC client (live or mock) |
-| `cap_gains_check.py` | Classifies short vs long term → verdict |
-| `samples/portfolio.beancount` | A small investment ledger |
-
-## Honest notes
-
-- `cap_gains_check.py` does **classification + treatment, not an exact tax figure** (which needs total income, filing status, NIIT, state). `beancount_client.py` handles the common `{cost} @ price` lot syntax, not the full beancount grammar. Production leans on the full OA skill + an agent step; the named-CPA sign-off makes the verdict relianceable.
-- Rules (the >1yr long-term cutoff, 0/15/20%, 3.8% NIIT) are 2025 US figures; live, every value comes from `get_skill`. The verifier (Amir Pelinkovic) is the real OpenAccountants US lead.
+|---|---|
+| `beancount_client.py` | Strict trade parsing, balances and FIFO lot calculations |
+| `cap_gains_check.py` | Ordinary-purchase holding terms and qualified loss notes |
+| `pipeline.py` | CLI and known or incomplete results |
+| `oa_client.py` | Bundled examples and experimental live adapter |
+| `reporting.py` | Visible control-character escapes and portable output |
+| `samples/portfolio.beancount` | Fabricated chronological investment trades |
+| `json_contract.py` | JSON object and numeric-token validation |
+| `tests/` | Offline parser, calculation, adapter and command-line regressions |

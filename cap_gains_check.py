@@ -1,38 +1,41 @@
-"""Classify a realized gain against the loaded OA capital-gains rules.
+"""Classify ordinary purchased investment property without calculating tax due."""
 
-The one that bites people: a gain on something held a year or less is
-**short-term** — taxed at ordinary income rates (up to 37%), not the 0/15/20%
-long-term rate most assume. This flags those.
+from datetime import date
+from decimal import Decimal, ROUND_HALF_UP, localcontext
 
-DELIBERATE SCOPE: classification + treatment, not an exact tax figure (which
-needs total income, filing status, NIIT, state). Production leans on the full OA
-skill + an agent step; the named-CPA sign-off makes the verdict relianceable.
-"""
+RULES = {"schema": "ordinary-us-capital-gains-v1", "holding_period": "more_than_calendar_year",
+         "scope": "individual_ordinary_investment_property"}
 
-from __future__ import annotations
+
+def money(value):
+    with localcontext() as context:
+        context.prec = 80
+        return f"USD {value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):,.2f}"
 
 
 def check(gain: dict, oa_skill: dict) -> dict:
-    rules = oa_skill.get("rules", {})
     base = {"oa_skill": oa_skill.get("slug"), "oa_skill_name": oa_skill.get("name"),
-            "tier": oa_skill.get("tier"), "verifier": oa_skill.get("verifier")}
-    days = gain["holding_days"]
-    amt = gain["gain"]
-    lt_min = rules.get("long_term_min_days", 366)
-
-    if amt < 0:
-        return {**base, "status": "info",
-                "headline": f"Capital loss (${amt:,.2f})",
-                "detail": "Offsets capital gains; up to $3,000/yr deductible against ordinary income, rest carries forward."}
-
-    if days >= lt_min:
-        lt = rules.get("long_term", {})
-        niit = rules.get("niit", {})
-        return {**base, "status": "ok",
-                "headline": f"Long-term gain — preferential rate ({lt.get('headline', '0/15/20%')})",
-                "detail": f"Held {days} days (>1yr). {niit.get('note', '')}".strip()}
-
-    st = rules.get("short_term", {})
-    return {**base, "status": "warn",
-            "headline": f"Short-term gain — {st.get('treatment', 'ordinary income rates')}",
-            "detail": f"Held only {days} days (≤1yr) — taxed as ordinary income, NOT the long-term 0/15/20% rate."}
+            "provenance": oa_skill.get("provenance", "unverified"),
+            "reported_metadata": {key: oa_skill.get(key) for key in ("tier", "verifier", "source")},
+            "term": None, "complete": False}
+    if oa_skill.get("rules") != RULES:
+        return {**base, "status": "incomplete", "headline": "Unsupported rule contract",
+                "detail": "The loaded rules do not match the ordinary-purchase example."}
+    acquired, sold = date.fromisoformat(gain["acquire_date"]), date.fromisoformat(gain["sell_date"])
+    if sold < acquired:
+        raise ValueError("sale precedes acquisition")
+    # ponytail: Leap-day acquisitions need a verified calendar boundary before classification.
+    if (acquired.month, acquired.day) == (2, 29):
+        return {**base, "status": "incomplete", "headline": "Holding period remains unresolved",
+                "detail": "The ordinary calendar boundary for a 29 February acquisition is not verified here."}
+    boundary = (acquired.year + 1, acquired.month, acquired.day)
+    term = "long-term" if (sold.year, sold.month, sold.day) > boundary else "short-term"
+    amount = gain["gain"]
+    outcome = "no gain or loss" if amount == 0 else f"{money(amount.copy_abs())} {'gain' if amount > 0 else 'loss'}"
+    detail = "Uses the ordinary-purchase calendar holding period. No tax rate or tax liability is calculated."
+    if amount < 0:
+        detail += (" This individual lot loss is not a deduction by itself. After annual capital-gain netting,"
+                   " an individual's net loss deduction is generally limited to USD 3,000"
+                   " (USD 1,500 if married filing separately); unused losses may carry forward.")
+    return {**base, "term": term, "complete": True, "status": "info",
+            "headline": f"{term.capitalize()}: {outcome}", "detail": detail}
