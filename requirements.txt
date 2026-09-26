@@ -1,2 +1,2 @@
-# The demo runs on the Python standard library alone (re + json + datetime).
-# No API keys, no signup. Set OA_MCP_TOKEN to use the live verified rules.
+# Python 3.10 or later; standard library only.
+# The optional live adapter remains unverified.

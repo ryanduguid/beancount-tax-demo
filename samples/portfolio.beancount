@@ -1,46 +1,42 @@
-; A small investment ledger. Buys carry a {cost}, sells carry the @ sale price.
-; OpenAccountants classifies each realized gain as short- vs long-term.
+; Fabricated ordinary investment purchases and sales, in chronological order.
+; Costs, sale prices and balancing postings are explicit USD amounts.
 
-2024-01-01 open Assets:Brokerage
-2024-01-01 open Assets:Cash
-2024-01-01 open Income:Gains
+2021-01-01 open Assets:Brokerage
+2021-01-01 open Assets:Cash
+2021-01-01 open Income:Gains
 
-; --- AAPL: bought Aug 2024, sold Mar 2025 -> held ~7 months -> SHORT-term (the catch)
-2024-08-01 * "Buy AAPL"
-  Assets:Brokerage   10 AAPL {150.00 USD}
-  Assets:Cash    -1500.00 USD
+2021-05-01 * "Buy VTI"
+  Assets:Brokerage 20 VTI {200.00 USD}
+  Assets:Cash -4000.00 USD
 
-2025-03-01 * "Sell AAPL"
-  Assets:Brokerage  -10 AAPL {150.00 USD} @ 200.00 USD
-  Assets:Cash     2000.00 USD
-  Income:Gains
-
-; --- BTC: bought Jan 2022, sold Feb 2025 -> held >3 years -> LONG-term
 2022-01-10 * "Buy BTC"
-  Assets:Brokerage   0.5 BTC {40000.00 USD}
-  Assets:Cash   -20000.00 USD
+  Assets:Brokerage 0.5 BTC {40000.00 USD}
+  Assets:Cash -20000.00 USD
+
+2024-08-01 * "Buy AAPL"
+  Assets:Brokerage 10 AAPL {150.00 USD}
+  Assets:Cash -1500.00 USD
+
+2024-11-15 * "Buy TSLA"
+  Assets:Brokerage 5 TSLA {350.00 USD}
+  Assets:Cash -1750.00 USD
 
 2025-02-01 * "Sell BTC"
-  Assets:Brokerage  -0.5 BTC {40000.00 USD} @ 95000.00 USD
-  Assets:Cash    47500.00 USD
-  Income:Gains
+  Assets:Brokerage -0.5 BTC {40000.00 USD} @ 95000.00 USD
+  Assets:Cash 47500.00 USD
+  Income:Gains -27500.00 USD
 
-; --- VTI: bought May 2021, sold May 2025 -> held >1 year -> LONG-term
-2021-05-01 * "Buy VTI"
-  Assets:Brokerage   20 VTI {200.00 USD}
-  Assets:Cash    -4000.00 USD
-
-2025-05-01 * "Sell VTI"
-  Assets:Brokerage  -20 VTI {200.00 USD} @ 250.00 USD
-  Assets:Cash     5000.00 USD
-  Income:Gains
-
-; --- TSLA: bought Nov 2024, sold Apr 2025 -> held ~5 months -> SHORT-term, and a LOSS
-2024-11-15 * "Buy TSLA"
-  Assets:Brokerage   5 TSLA {350.00 USD}
-  Assets:Cash    -1750.00 USD
+2025-03-01 * "Sell AAPL"
+  Assets:Brokerage -10 AAPL {150.00 USD} @ 200.00 USD
+  Assets:Cash 2000.00 USD
+  Income:Gains -500.00 USD
 
 2025-04-10 * "Sell TSLA"
-  Assets:Brokerage  -5 TSLA {350.00 USD} @ 300.00 USD
-  Assets:Cash     1500.00 USD
-  Income:Gains
+  Assets:Brokerage -5 TSLA {350.00 USD} @ 300.00 USD
+  Assets:Cash 1500.00 USD
+  Income:Gains 250.00 USD
+
+2025-05-01 * "Sell VTI"
+  Assets:Brokerage -20 VTI {200.00 USD} @ 250.00 USD
+  Assets:Cash 5000.00 USD
+  Income:Gains -1000.00 USD
