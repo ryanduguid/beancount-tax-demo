@@ -7,7 +7,7 @@ import re
 
 NUMBER = r"[+-]?[0-9]+(?:\.[0-9]*)?"
 ACCOUNT = r"(?:Assets|Income)(?::[A-Z][A-Za-z0-9-]*)+"
-COMMODITY = r"[A-Z](?:[A-Z0-9._]*[A-Z0-9])?"
+COMMODITY = r"(?:[A-Z][A-Z0-9._]*[A-Z0-9]|[A-Z](?=[ \t]))"
 QUOTED = r'"(?:[^"\\]|\\.)*"'
 DATE = r"(?:17|18|19|20)[0-9]{2}-[0-9]{2}-[0-9]{2}"
 HEADER = re.compile(r"(" + DATE + r")[ \t]+\*[ \t]+" + QUOTED + r"(?:[ \t]+" + QUOTED + r")?")
@@ -103,10 +103,15 @@ def parse(path: str) -> list[dict]:
 
     with localcontext() as context:
         context.prec = 80
-        with open(path, encoding="utf-8") as fh:
+        with open(path, encoding="utf-8", newline="\n") as fh:
             for line_number, raw in enumerate(fh, 1):
                 line = raw.rstrip("\r\n \t")
-                if not line.strip(" \t") or line.lstrip(" \t").startswith(";"):
+                stripped = line.lstrip(" \t")
+                if not stripped or stripped.startswith(";"):
+                    if current is not None and (not stripped or line == stripped):
+                        gains.extend(finish())
+                        trades += 1
+                        current, postings = None, []
                     continue
                 opening, header = OPEN.fullmatch(line), HEADER.fullmatch(line)
                 if opening or header:

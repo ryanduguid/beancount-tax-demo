@@ -32,8 +32,30 @@ class LedgerTests(unittest.TestCase):
     def parse(self, text):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "example.beancount"
-            path.write_text(text, encoding="utf-8")
+            path.write_bytes(text.encode("utf-8"))
             return beancount_client.parse(str(path))
+
+    def test_physical_newlines_and_transaction_boundaries(self):
+        commented_sale = OPEN + BUY + "; not a sale\r" + SELL.rstrip("\n").replace("\n", "\r") + "\n"
+        self.assertEqual(self.parse(commented_sale), [])
+        self.assertEqual(self.parse((OPEN + BUY + SELL).replace("\n", "\r\n"))[0]["gain"], Decimal(20))
+        for separator in ("\n", "; outside transaction\n", "  \n"):
+            with self.subTest(separator=separator):
+                with self.assertRaises(ValueError):
+                    self.parse(OPEN + BUY.replace("  Assets:Cash", separator + "  Assets:Cash") + SELL)
+        indented_comment = BUY.replace("  Assets:Cash", "  ; inside transaction\n  Assets:Cash")
+        self.assertEqual(self.parse(OPEN + indented_comment + SELL)[0]["gain"], Decimal(20))
+
+    def test_single_letter_commodity_requires_a_lexer_boundary(self):
+        for separator in (" ", "\t", ""):
+            for symbol in ("A", "ABC"):
+                with self.subTest(symbol=symbol, separator=separator):
+                    source = (OPEN + BUY + SELL).replace("ABC {", symbol + separator + "{")
+                    if symbol == "A" and not separator:
+                        with self.assertRaises(ValueError):
+                            self.parse(source)
+                    else:
+                        self.assertEqual(self.parse(source)[0]["gain"], Decimal(20))
 
     def test_fifo_across_lots_preserves_remaining_quantity(self):
         ledger = OPEN + '''2023-01-01 * "First buy"
