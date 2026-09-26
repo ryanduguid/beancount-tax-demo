@@ -35,7 +35,7 @@ validator. It accepts only the following investment trades:
   letters, digits or hyphens.
 - Chronological `YYYY-MM-DD * "Narration"` transaction headers, with an optional
   quoted payee before the narration. Blank lines and whole-line `;` comments
-  are allowed.
+  are allowed. Token separators and indentation use ASCII spaces or tabs.
 - One investment posting and one explicit USD cash posting per trade. Purchases
   require a positive quantity and `{unit_cost USD}`. Sales require a negative
   quantity, `{}` or `{unit_cost USD}`, one `@ unit_price USD`, and one explicit
@@ -79,6 +79,7 @@ Quantities, unit costs and unit prices are finite ASCII decimal literals with ab
 values at most `1e12` and up to 18 decimal places. USD cash and income postings
 allow absolute values up to `1e24` and 36 decimal places. Unit costs and prices
 must be non-negative. Scientific notation is outside the accepted grammar.
+Fractional values need a leading digit, such as `0.5`; `.5` is rejected.
 
 Calculations use 80 digits of decimal precision and retain exact lot values;
 there is no quantity tolerance or rounding before gains are calculated. Display

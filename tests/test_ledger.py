@@ -70,7 +70,12 @@ class LedgerTests(unittest.TestCase):
         ledger = OPEN + BUY + SELL
         invalid = [ledger.replace("Assets:Brokerage", "Assets:Broker_"),
                    ledger.replace("1 ABC", "\u0661 ABC")]
+        invalid.append(OPEN + BUY.replace("1 ABC", ".5 ABC").replace("-10 USD", "-5 USD")
+                       + SELL.replace("-1 ABC", "-.5 ABC").replace("Cash 30 USD", "Cash 15 USD")
+                       .replace("-20 USD", "-10 USD"))
         invalid += [ledger.replace("ABC", symbol) for symbol in ("A_", "A.", "TRUE", "FALSE", "NULL")]
+        invalid += [ledger.replace(" ABC", separator + "ABC") for separator in ("\u00a0", "\v", "\f")]
+        invalid.append(ledger.replace("\n", "\u00a0\n"))
         for text in invalid:
             with self.subTest(ledger=text), self.assertRaises(ValueError):
                 self.parse(text)

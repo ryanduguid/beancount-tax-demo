@@ -5,15 +5,15 @@ from datetime import date
 from decimal import Decimal, localcontext
 import re
 
-NUMBER = r"[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)"
+NUMBER = r"[+-]?[0-9]+(?:\.[0-9]+)?"
 ACCOUNT = r"(?:Assets|Income)(?::[A-Z][A-Za-z0-9-]*)+"
 COMMODITY = r"[A-Z](?:[A-Z0-9._]*[A-Z0-9])?"
 QUOTED = r'"(?:[^"\\]|\\.)*"'
-HEADER = re.compile(r"(\d{4}-\d{2}-\d{2})\s+\*\s+" + QUOTED + r"(?:\s+" + QUOTED + r")?")
-OPEN = re.compile(r"(\d{4}-\d{2}-\d{2})\s+open\s+(" + ACCOUNT + r")")
-POSTING = re.compile(r"\s+(" + ACCOUNT + r")\s+(" + NUMBER + r")\s+(" + COMMODITY + r")\s*(.*)")
-BUY = re.compile(r"\{\s*(" + NUMBER + r")\s+USD\s*\}")
-SELL = re.compile(r"\{\s*(?:(" + NUMBER + r")\s+USD\s*)?\}\s*@\s*(" + NUMBER + r")\s+USD")
+HEADER = re.compile(r"(\d{4}-\d{2}-\d{2})[ \t]+\*[ \t]+" + QUOTED + r"(?:[ \t]+" + QUOTED + r")?")
+OPEN = re.compile(r"(\d{4}-\d{2}-\d{2})[ \t]+open[ \t]+(" + ACCOUNT + r")")
+POSTING = re.compile(r"[ \t]+(" + ACCOUNT + r")[ \t]+(" + NUMBER + r")[ \t]+(" + COMMODITY + r")[ \t]*(.*)")
+BUY = re.compile(r"\{[ \t]*(" + NUMBER + r")[ \t]+USD[ \t]*\}")
+SELL = re.compile(r"\{[ \t]*(?:(" + NUMBER + r")[ \t]+USD[ \t]*)?\}[ \t]*@[ \t]*(" + NUMBER + r")[ \t]+USD")
 OTHER_FIAT = {"EUR", "GBP", "CAD", "AUD"}
 
 
@@ -104,8 +104,8 @@ def parse(path: str) -> list[dict]:
         context.prec = 80
         with open(path, encoding="utf-8") as fh:
             for line_number, raw in enumerate(fh, 1):
-                line = raw.rstrip()
-                if not line.strip() or line.lstrip().startswith(";"):
+                line = raw.rstrip("\r\n \t")
+                if not line.strip(" \t") or line.lstrip(" \t").startswith(";"):
                     continue
                 opening, header = OPEN.fullmatch(line), HEADER.fullmatch(line)
                 if opening or header:
