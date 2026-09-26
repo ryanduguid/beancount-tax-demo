@@ -39,6 +39,8 @@ validator. It accepts only the following investment trades:
   Years must be between 1700 and 2099, matching Beancount's date tokens.
   Lines end with LF or CRLF. Blank lines and unindented comments end a
   transaction; only indented comments may occur between its postings.
+  A bare carriage return inside a comment does not end that comment, matching
+  Beancount's lexer. Text following it remains comment text until LF.
   A single-letter commodity requires a space or tab before its cost annotation.
 - One investment posting and one explicit USD cash posting per trade. Purchases
   require a positive quantity and `{unit_cost USD}`. Sales require a negative
