@@ -32,7 +32,7 @@ validator. It accepts only the following investment trades:
 
 - Dated `open` directives for `Assets:` and `Income:` accounts, before first use.
   Account components start with an ASCII capital letter and then contain ASCII
-  letters, digits, underscores or hyphens.
+  letters, digits or hyphens.
 - Chronological `YYYY-MM-DD * "Narration"` transaction headers, with an optional
   quoted payee before the narration. Blank lines and whole-line `;` comments
   are allowed.
@@ -40,6 +40,9 @@ validator. It accepts only the following investment trades:
   require a positive quantity and `{unit_cost USD}`. Sales require a negative
   quantity, `{}` or `{unit_cost USD}`, one `@ unit_price USD`, and one explicit
   USD `Income:` posting.
+- Commodity names start with an ASCII capital letter and end with an ASCII
+  capital letter or digit. Interior characters may also include periods and
+  underscores. The reserved words `TRUE`, `FALSE` and `NULL` are excluded.
 - USD cost and cash currency only. The cash and income postings must agree
   exactly with the calculated cost or sale proceeds and FIFO basis. Fees must
   not be hidden in a different cash amount.
@@ -72,7 +75,7 @@ before any lots are consumed.
 
 ## Decimal calculations and scope
 
-Quantities, unit costs and unit prices are finite decimal literals with absolute
+Quantities, unit costs and unit prices are finite ASCII decimal literals with absolute
 values at most `1e12` and up to 18 decimal places. USD cash and income postings
 allow absolute values up to `1e24` and 36 decimal places. Unit costs and prices
 must be non-negative. Scientific notation is outside the accepted grammar.

@@ -5,12 +5,13 @@ from datetime import date
 from decimal import Decimal, localcontext
 import re
 
-NUMBER = r"[+-]?(?:\d+(?:\.\d+)?|\.\d+)"
-ACCOUNT = r"(?:Assets|Income)(?::[A-Z][A-Za-z0-9_-]*)+"
+NUMBER = r"[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)"
+ACCOUNT = r"(?:Assets|Income)(?::[A-Z][A-Za-z0-9-]*)+"
+COMMODITY = r"[A-Z](?:[A-Z0-9._]*[A-Z0-9])?"
 QUOTED = r'"(?:[^"\\]|\\.)*"'
 HEADER = re.compile(r"(\d{4}-\d{2}-\d{2})\s+\*\s+" + QUOTED + r"(?:\s+" + QUOTED + r")?")
 OPEN = re.compile(r"(\d{4}-\d{2}-\d{2})\s+open\s+(" + ACCOUNT + r")")
-POSTING = re.compile(r"\s+(" + ACCOUNT + r")\s+(" + NUMBER + r")\s+([A-Z][A-Z0-9._]*)\s*(.*)")
+POSTING = re.compile(r"\s+(" + ACCOUNT + r")\s+(" + NUMBER + r")\s+(" + COMMODITY + r")\s*(.*)")
 BUY = re.compile(r"\{\s*(" + NUMBER + r")\s+USD\s*\}")
 SELL = re.compile(r"\{\s*(?:(" + NUMBER + r")\s+USD\s*)?\}\s*@\s*(" + NUMBER + r")\s+USD")
 OTHER_FIAT = {"EUR", "GBP", "CAD", "AUD"}
@@ -27,6 +28,8 @@ def number(value, *, cash=False):
 def apply_trade(occurred, postings, lots):
     investments, cash, income = [], [], []
     for account, units, symbol, rest in postings:
+        if symbol in {"TRUE", "FALSE", "NULL"}:
+            raise ValueError("reserved Beancount keywords cannot be commodities")
         if symbol in OTHER_FIAT:
             raise ValueError("only USD cost and cash currency are supported")
         if symbol == "USD":

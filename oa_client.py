@@ -94,32 +94,6 @@ class OAClient:
             raise ValueError("invalid JSON decimal literal in OA response") from error
 
 
-# Bundled illustrative rules have no professional attestation.
-
-_MOCK_START = {
-    "US": {"jurisdiction": "US", "skills_to_load": ["us-crypto-tax"],
-           "next_action": "Load the skill, then classify each crypto event."},
-    "_DEFAULT": {"jurisdiction": "US", "skills_to_load": ["us-crypto-tax"],
-                 "next_action": "Load the skill, then classify each crypto event."},
-}
-
-_MOCK_SKILL = {
-    "us-crypto-tax": {
-        "slug": "us-crypto-tax",
-        "name": "Illustrative US crypto events",
-        "jurisdiction": "US", "tier": None, "verifier": None,
-        "rules": {
-            "schema": "ordinary-us-crypto-v1",
-            "holding_period": "more_than_calendar_year",
-            "taxable_disposals": ["sell", "swap", "spend"],
-            "reward_policy": "staking_or_hard_fork_airdrop_with_control",
-        },
-        "source": "https://www.openaccountants.com/skills/us-crypto-tax",
-    },
-    "_DEFAULT": {"slug": "us-crypto-tax", "name": "Crypto tax",
-                 "jurisdiction": "US", "tier": None, "verifier": None, "rules": {},
-                 "source": "https://www.openaccountants.com/skills"},
-}
 # Bundled illustrative responses have no professional attestation.
 
 _MOCK_START = {

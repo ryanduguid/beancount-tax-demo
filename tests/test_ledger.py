@@ -66,6 +66,18 @@ class LedgerTests(unittest.TestCase):
         self.assertEqual(result[0]["cost_basis"], Decimal(10))
         self.assertEqual(result[0]["account"], "Assets:Brokerage")
 
+    def test_accepted_tokens_follow_beancount_lexical_rules(self):
+        ledger = OPEN + BUY + SELL
+        invalid = [ledger.replace("Assets:Brokerage", "Assets:Broker_"),
+                   ledger.replace("1 ABC", "\u0661 ABC")]
+        invalid += [ledger.replace("ABC", symbol) for symbol in ("A_", "A.", "TRUE", "FALSE", "NULL")]
+        for text in invalid:
+            with self.subTest(ledger=text), self.assertRaises(ValueError):
+                self.parse(text)
+        for symbol in ("A", "A1", "A.B", "A_B"):
+            with self.subTest(symbol=symbol):
+                self.assertEqual(self.parse(ledger.replace("ABC", symbol))[0]["symbol"], symbol)
+
     def test_total_price_currency_and_lot_selectors_are_rejected(self):
         alternatives = [SELL.replace(" @ 30 USD", " @@ 30 USD"),
                         SELL.replace(" @ 30 USD", " @ 30 EUR"),
