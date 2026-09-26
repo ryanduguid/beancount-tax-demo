@@ -95,6 +95,22 @@ class LedgerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.parse(OPEN + BUY.replace("{10 USD}", "{10 EUR}") + SELL)
 
+    def test_native_date_bounds_and_decimal_spellings(self):
+        ledger = OPEN + BUY + SELL
+        for year in (1600, 1699, 1700, 2099, 2100, 9999):
+            text = ledger.replace("2021-01-01", f"{year}-01-01").replace("2023-01-01", f"{year}-01-02")
+            text = text.replace("2025-01-02", f"{year}-01-03")
+            with self.subTest(year=year):
+                if 1700 <= year <= 2099:
+                    self.assertEqual(self.parse(text)[0]["gain"], Decimal(20))
+                else:
+                    with self.assertRaises(ValueError):
+                        self.parse(text)
+        trailing = ledger.replace("1 ABC", "1. ABC").replace("10 USD", "10. USD")
+        trailing = trailing.replace("30 USD", "30. USD").replace("20 USD", "20. USD")
+        self.assertEqual(self.parse(trailing)[0]["gain"], Decimal(20))
+        self.assertEqual(self.parse(ledger.replace(" 1 ABC", " +1 ABC"))[0]["gain"], Decimal(20))
+
     def test_oversale_is_rejected_without_returning_partial_gains(self):
         with self.assertRaisesRegex(ValueError, "quantity"):
             self.parse(OPEN + BUY + SELL.replace("-1 ABC", "-2 ABC"))

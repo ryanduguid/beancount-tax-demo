@@ -36,6 +36,7 @@ validator. It accepts only the following investment trades:
 - Chronological `YYYY-MM-DD * "Narration"` transaction headers, with an optional
   quoted payee before the narration. Blank lines and whole-line `;` comments
   are allowed. Token separators and indentation use ASCII spaces or tabs.
+  Years must be between 1700 and 2099, matching Beancount's date tokens.
 - One investment posting and one explicit USD cash posting per trade. Purchases
   require a positive quantity and `{unit_cost USD}`. Sales require a negative
   quantity, `{}` or `{unit_cost USD}`, one `@ unit_price USD`, and one explicit
@@ -80,6 +81,8 @@ values at most `1e12` and up to 18 decimal places. USD cash and income postings
 allow absolute values up to `1e24` and 36 decimal places. Unit costs and prices
 must be non-negative. Scientific notation is outside the accepted grammar.
 Fractional values need a leading digit, such as `0.5`; `.5` is rejected.
+Ungrouped digits may have a leading sign and a decimal point with an empty
+fractional part, such as `+10.`. Comma grouping is outside this subset.
 
 Calculations use 80 digits of decimal precision and retain exact lot values;
 there is no quantity tolerance or rounding before gains are calculated. Display

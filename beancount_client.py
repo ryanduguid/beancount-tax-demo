@@ -5,12 +5,13 @@ from datetime import date
 from decimal import Decimal, localcontext
 import re
 
-NUMBER = r"[+-]?[0-9]+(?:\.[0-9]+)?"
+NUMBER = r"[+-]?[0-9]+(?:\.[0-9]*)?"
 ACCOUNT = r"(?:Assets|Income)(?::[A-Z][A-Za-z0-9-]*)+"
 COMMODITY = r"[A-Z](?:[A-Z0-9._]*[A-Z0-9])?"
 QUOTED = r'"(?:[^"\\]|\\.)*"'
-HEADER = re.compile(r"(\d{4}-\d{2}-\d{2})[ \t]+\*[ \t]+" + QUOTED + r"(?:[ \t]+" + QUOTED + r")?")
-OPEN = re.compile(r"(\d{4}-\d{2}-\d{2})[ \t]+open[ \t]+(" + ACCOUNT + r")")
+DATE = r"(?:17|18|19|20)[0-9]{2}-[0-9]{2}-[0-9]{2}"
+HEADER = re.compile(r"(" + DATE + r")[ \t]+\*[ \t]+" + QUOTED + r"(?:[ \t]+" + QUOTED + r")?")
+OPEN = re.compile(r"(" + DATE + r")[ \t]+open[ \t]+(" + ACCOUNT + r")")
 POSTING = re.compile(r"[ \t]+(" + ACCOUNT + r")[ \t]+(" + NUMBER + r")[ \t]+(" + COMMODITY + r")[ \t]*(.*)")
 BUY = re.compile(r"\{[ \t]*(" + NUMBER + r")[ \t]+USD[ \t]*\}")
 SELL = re.compile(r"\{[ \t]*(?:(" + NUMBER + r")[ \t]+USD[ \t]*)?\}[ \t]*@[ \t]*(" + NUMBER + r")[ \t]+USD")
