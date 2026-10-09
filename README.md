@@ -1,5 +1,9 @@
 # Beancount → OpenAccountants: illustrative capital gains
 
+**Fork status**
+
+[![Fork code quality](https://app.codacy.com/project/badge/Grade/33cf2d14de1a4e499ac8082ea61c1048?branch=main)](https://app.codacy.com/gh/ryanduguid/beancount-tax-demo/dashboard)
+
 Read a strict USD investment-ledger subset, match lots by account and commodity
 using FIFO, and calculate exact proceeds less basis. The example classifies
 ordinary purchased investment property using a calendar holding period.
