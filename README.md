@@ -1,16 +1,18 @@
 # beancount → OpenAccountants: capital-gains demo
 
-**The pitch in one line:** beancount tracks your lots in plain text. OpenAccountants tells you the **tax treatment of each realized gain** — short- vs long-term, across jurisdictions — signed off by a named licensed accountant. No API keys, no signup.
+Demonstrates capital-gains classification from a beancount ledger using OpenAccountants sample rules, with an optional live MCP connection.
+
+Default runs use bundled sample responses. Their rates, verdicts and reviewer labels are illustrative fixtures, not evidence that an accountant reviewed the demo or a live Guide. For live use, check the fetched Guide's review status, reviewer, version and review date against the [review method](https://www.openaccountants.com/review-method). A jurisdiction lead's name alone does not establish review. Have a qualified professional review outputs before filing or acting on them.
 
 ```
 portfolio.beancount
   └─ FIFO lot matching → realized gains { symbol, acquire/sell date, gain }
-        └─ OpenAccountants MCP  →  load the verified capital-gains skill
+        └─ OpenAccountants MCP  →  load the capital-gains skill
               └─ Verdict:  ✅ long-term — preferential rate (0/15/20%)
                            ⚠️ short-term — ordinary income rates (up to 37%)   ← the catch
                            ℹ️  capital loss — offsets gains
                  · holding period computed from the ledger
-                 · the named CPA who signed off the rates
+                 · the Guide version's published review record, if present
 ```
 
 ![beancount → OpenAccountants demo](demo.svg)
@@ -22,9 +24,9 @@ portfolio.beancount
 beancount is plain-text, double-entry accounting beloved by developers, and it's excellent at **lot tracking** — which makes it the perfect substrate for capital-gains tax. This demo reads a `.beancount` ledger, pairs buys and sells FIFO, and asks OpenAccountants the question the ledger can't answer itself: *how is each gain actually taxed?*
 
 - **beancount = the lots and the cost basis.**
-- **OpenAccountants = the tax treatment.** Short vs long term, the preferential-rate cutoff, NIIT — with verified rules a real accountant signed off on.
+- **OpenAccountants = the tax treatment.** Short vs long term, the preferential-rate cutoff, NIIT; using the loaded rules; check the Guide version's review record.
 
-No keys, no signup — `python pipeline.py` and it runs. (Set `OA_MCP_TOKEN` to use the live verified rules instead of the bundled ones.)
+No keys, no signup; `python pipeline.py` and it runs. (Set `OA_MCP_TOKEN` to use the live Guide content instead of the bundled samples; check its review status.)
 
 ## What it shows
 
@@ -51,7 +53,7 @@ python pipeline.py samples/portfolio.beancount
 ### Go live
 
 ```bash
-export OA_MCP_TOKEN=...     # OpenAccountants account token (uses the live verified rules)
+export OA_MCP_TOKEN=...     # OpenAccountants account token (uses live Guide content; check review status)
 python pipeline.py
 ```
 
@@ -67,5 +69,5 @@ python pipeline.py
 
 ## Honest notes
 
-- `cap_gains_check.py` does **classification + treatment, not an exact tax figure** (which needs total income, filing status, NIIT, state). `beancount_client.py` handles the common `{cost} @ price` lot syntax, not the full beancount grammar. Production leans on the full OA skill + an agent step; the named-CPA sign-off makes the verdict relianceable.
-- Rules (the >1yr long-term cutoff, 0/15/20%, 3.8% NIIT) are 2025 US figures; live, every value comes from `get_skill`. The verifier (Amir Pelinkovic) is the real OpenAccountants US lead.
+- `cap_gains_check.py` does **classification + treatment, not an exact tax figure** (which needs total income, filing status, NIIT, state). `beancount_client.py` handles the common `{cost} @ price` lot syntax, not the full beancount grammar. Production leans on the full OA skill + an agent step; professional review must be established for the specific Guide version and your facts.
+- Rules (the >1yr long-term cutoff, 0/15/20%, 3.8% NIIT) are 2025 US figures; the bundled reviewer label is illustrative. Inspect the actual `get_skill` response and its review record in live mode.
