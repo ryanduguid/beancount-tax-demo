@@ -1,16 +1,12 @@
-import contextlib
 import io
 import json
 import os
-from pathlib import Path
-import tempfile
 import unittest
 from unittest.mock import patch
 
 os.environ["OA_MCP_TOKEN"] = ""
 os.environ["OA_MCP_URL"] = "https://example.invalid"
 
-import pipeline
 from oa_client import OAClient
 
 
