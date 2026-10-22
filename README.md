@@ -1,8 +1,12 @@
 # Beancount → OpenAccountants: illustrative capital gains
 
+<div align="center">
+
 **Fork status**
 
 [![Fork code quality](https://img.shields.io/codacy/grade/33cf2d14de1a4e499ac8082ea61c1048/main?style=flat&labelColor=000000)](https://app.codacy.com/gh/ryanduguid/beancount-tax-demo/dashboard)
+
+</div>
 
 Read a strict USD investment-ledger subset, match lots by account and commodity
 using FIFO, and calculate exact proceeds less basis. The example classifies
