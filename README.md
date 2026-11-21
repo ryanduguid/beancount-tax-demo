@@ -4,7 +4,7 @@
 
 **Fork status**
 
-[![Fork code quality](https://img.shields.io/codacy/grade/33cf2d14de1a4e499ac8082ea61c1048/main?style=flat&labelColor=000000)](https://app.codacy.com/gh/ryanduguid/beancount-tax-demo/dashboard)
+[![Fork code quality](https://img.shields.io/codacy/grade/33cf2d14de1a4e499ac8082ea61c1048/main?style=flat&labelColor=000000)](https://app.codacy.com/gh/ryanduguid/beancount-tax-demo/dashboard) [![Fork quality gate](https://sonarcloud.io/api/project_badges/measure?project=ryanduguid_beancount-tax-demo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ryanduguid_beancount-tax-demo)
 
 </div>
 
