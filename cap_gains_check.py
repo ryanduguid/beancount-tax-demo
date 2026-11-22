@@ -24,7 +24,7 @@ def check(gain: dict, oa_skill: dict) -> dict:
     acquired, sold = date.fromisoformat(gain["acquire_date"]), date.fromisoformat(gain["sell_date"])
     if sold < acquired:
         raise ValueError("sale precedes acquisition")
-    # Scope: leap-day acquisitions need a verified calendar boundary before classification.
+    # chisle: Leap-day acquisitions need a verified calendar boundary before classification.
     if (acquired.month, acquired.day) == (2, 29):
         return {**base, "status": "incomplete", "headline": "Holding period remains unresolved",
                 "detail": "The ordinary calendar boundary for a 29 February acquisition is not verified here."}
