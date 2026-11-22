@@ -96,10 +96,13 @@ def parse(path: str) -> list[dict]:
     current, postings, previous, header_line, trades = None, [], date.min, 0, 0
 
     def finish():
+        nonlocal current, postings, trades
         try:
-            return apply_trade(current, postings, lots)
+            gains.extend(apply_trade(current, postings, lots))
         except ValueError as error:
             raise ValueError(f"line {header_line}: {error}") from error
+        trades += 1
+        current, postings = None, []
 
     with localcontext() as context:
         context.prec = 80
@@ -109,16 +112,12 @@ def parse(path: str) -> list[dict]:
                 stripped = line.lstrip(" \t")
                 if not stripped or stripped.startswith(";"):
                     if current is not None and (not stripped or line == stripped):
-                        gains.extend(finish())
-                        trades += 1
-                        current, postings = None, []
+                        finish()
                     continue
                 opening, header = OPEN.fullmatch(line), HEADER.fullmatch(line)
                 if opening or header:
                     if current is not None:
-                        gains.extend(finish())
-                        trades += 1
-                        current, postings = None, []
+                        finish()
                     try:
                         occurred = date.fromisoformat((opening or header)[1])
                     except ValueError as error:
@@ -145,8 +144,7 @@ def parse(path: str) -> list[dict]:
                     raise ValueError(f"line {line_number}: {error}") from error
                 postings.append((account, units, symbol, rest))
         if current is not None:
-            gains.extend(finish())
-            trades += 1
+            finish()
     if not trades:
         raise ValueError("ledger must contain at least one supported trade")
     return gains
