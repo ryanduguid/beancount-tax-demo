@@ -21,6 +21,14 @@ MCP_URL = os.environ.get("OA_MCP_URL", "https://www.openaccountants.com/api/mcp"
 MCP_TOKEN = os.environ.get("OA_MCP_TOKEN")
 
 
+def _decode(text: str | bytes):
+    try:
+        return json.loads(text, parse_float=Decimal, parse_constant=reject_json_constant,
+                          object_pairs_hook=unique_object)
+    except InvalidOperation as error:
+        raise ValueError("invalid JSON decimal literal in OA response") from error
+
+
 class OAClient:
     def __init__(self, token: str | None = MCP_TOKEN, url: str = MCP_URL):
         self.token, self.url, self._id = token, url, 0
@@ -31,7 +39,7 @@ class OAClient:
 
     def start(self, intent: str, jurisdiction: str) -> dict:
         if not self.live:
-            return deepcopy(_MOCK_START.get(jurisdiction.upper(), _MOCK_START["_DEFAULT"]))
+            return deepcopy(_MOCK_START)
         return self._call("start", {"intent": intent, "jurisdiction": jurisdiction})
 
     def get_skill(self, slug: str) -> dict:
@@ -53,12 +61,7 @@ class OAClient:
         req = urllib.request.Request(self.url, data=body, headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
-                payload = json.load(
-                    resp, parse_float=Decimal, parse_constant=reject_json_constant,
-                    object_pairs_hook=unique_object,
-                )
-        except InvalidOperation as error:
-            raise ValueError("invalid JSON decimal literal in OA response") from error
+                payload = _decode(resp.read())
         except HTTPException as error:
             raise RuntimeError("OA MCP HTTP response was incomplete or invalid") from error
         except urllib.error.HTTPError as e:
@@ -85,21 +88,12 @@ class OAClient:
             raise ValueError("OA MCP content must contain a text object")
         if content[0].get("type") != "text" or not isinstance(content[0].get("text"), str):
             raise ValueError("OA MCP content must contain a text string")
-        try:
-            return json.loads(
-                content[0]["text"], parse_float=Decimal, parse_constant=reject_json_constant,
-                object_pairs_hook=unique_object,
-            )
-        except InvalidOperation as error:
-            raise ValueError("invalid JSON decimal literal in OA response") from error
+        return _decode(content[0]["text"])
 
 
 # Bundled illustrative responses have no professional attestation.
 
-_MOCK_START = {
-    "US": {"jurisdiction": "US", "skills_to_load": ["us-capital-gains"]},
-    "_DEFAULT": {"jurisdiction": "US", "skills_to_load": ["us-capital-gains"]},
-}
+_MOCK_START = {"jurisdiction": "US", "skills_to_load": ["us-capital-gains"]}
 
 _MOCK_SKILL = {
     "us-capital-gains": {
