@@ -91,7 +91,7 @@ def apply_trade(occurred, postings, lots):
 
 
 def parse(path: str) -> list[dict]:
-    # Scope: accept only the documented trade subset; use Beancount's parser for broader grammar.
+    # chisle: Accept only the documented trade subset; use Beancount's parser for broader grammar.
     lots, gains, opened = defaultdict(deque), [], set()
     current, postings, previous, header_line, trades = None, [], date.min, 0, 0
 
